@@ -20,6 +20,7 @@ class SignupRequest extends FormRequest
             'password' => ['required', 'string', 'min:8'],
             'company_name' => ['required', 'string', 'max:255'],
             'job_title' => ['required', 'string', 'max:255'],
+            'avatar_url' => ['nullable', 'url', 'max:2048'],
             'location' => ['nullable', 'string', 'max:255'],
             'bio' => ['nullable', 'string'],
             'phone_number' => ['nullable', 'string', 'max:255'],

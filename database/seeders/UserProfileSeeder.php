@@ -21,6 +21,7 @@ class UserProfileSeeder extends Seeder
         $profileData = [
             'job_title' => 'Product Marketing Lead',
             'company_name' => 'EventSphere Inc.',
+            'avatar_url' => 'https://example.com/avatar.jpg',
             'location' => 'San Francisco, CA',
             'bio' => 'Conference enthusiast focused on building meaningful event experiences.',
             'phone_number' => '+1-555-123-4567',

@@ -23,6 +23,7 @@ class SignupController extends Controller
             $user->profile()->create([
                 'job_title' => $formData['job_title'],
                 'company_name' => $formData['company_name'],
+                'avatar_url' => $formData['avatar_url'] ?? null,
                 'location' => $formData['location'] ?? null,
                 'bio' => $formData['bio'] ?? null,
                 'phone_number' => $formData['phone_number'] ?? null,
