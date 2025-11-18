@@ -77,4 +77,39 @@ class AttendeeControllerTest extends TestCase
             ->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.name', 'First Timer');
     }
+
+    public function test_logged_in_user_is_not_part_of_attendee_listing(): void
+    {
+        $currentUser = User::factory()->create(['name' => 'Current User']);
+        $currentUser->profile()->create([
+            'job_title' => 'Organizer',
+            'company_name' => 'Event Org',
+            'avatar_url' => null,
+            'linkedin_url' => 'https://www.linkedin.com/in/current-user',
+            'location' => 'SF',
+            'bio' => 'Runs events',
+            'phone_number' => '5551112222',
+            'is_first_timer' => false,
+            'tags' => ['operations'],
+        ]);
+
+        $other = User::factory()->create(['name' => 'Other Person']);
+        $other->profile()->create([
+            'job_title' => 'Attendee',
+            'company_name' => 'Another Org',
+            'avatar_url' => null,
+            'linkedin_url' => 'https://www.linkedin.com/in/other-person',
+            'location' => 'NYC',
+            'bio' => 'Ready to network',
+            'phone_number' => '1231231234',
+            'is_first_timer' => false,
+            'tags' => ['networking'],
+        ]);
+
+        $response = $this->actingAs($currentUser, 'sanctum')->getJson('/api/attendees');
+
+        $response->assertOk()
+            ->assertJsonCount(1, 'data')
+            ->assertJsonPath('data.0.name', 'Other Person');
+    }
 }

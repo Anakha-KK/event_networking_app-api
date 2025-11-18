@@ -12,6 +12,10 @@ class AttendeeController extends Controller
     {
         $query = User::query()->with('profile');
 
+        if ($request->user()) {
+            $query->whereKeyNot($request->user()->getKey());
+        }
+
         if ($search = trim((string) $request->query('q', ''))) {
             $query->where(function ($builder) use ($search) {
                 $builder->where('name', 'like', "%{$search}%")
