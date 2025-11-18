@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendeeController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SignupController;
@@ -18,4 +19,6 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/user/profile', [UserProfileController::class, 'show']);
     Route::patch('/user/profile', [UserProfileController::class, 'update']);
+
+    Route::get('/attendees', [AttendeeController::class, 'index']);
 });

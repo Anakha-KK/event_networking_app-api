@@ -20,7 +20,7 @@ class UserProfileControllerTest extends TestCase
             'avatar_url' => 'https://example.com/avatar.png',
             'location' => 'Remote',
             'bio' => 'Building event networking tools.',
-            'phone_number' => '+123456789',
+            'phone_number' => '1234567890',
             'is_first_timer' => true,
         ]);
 
@@ -36,4 +36,3 @@ class UserProfileControllerTest extends TestCase
         $this->getJson('/api/user/profile')->assertStatus(401);
     }
 }
-

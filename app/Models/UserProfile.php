@@ -21,6 +21,7 @@ class UserProfile extends Model
         'bio',
         'phone_number',
         'is_first_timer',
+        'tags',
     ];
 
     /**
@@ -30,6 +31,7 @@ class UserProfile extends Model
     {
         return [
             'is_first_timer' => 'boolean',
+            'tags' => 'array',
         ];
     }
 
