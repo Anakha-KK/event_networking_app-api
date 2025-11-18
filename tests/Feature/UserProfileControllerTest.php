@@ -35,4 +35,43 @@ class UserProfileControllerTest extends TestCase
     {
         $this->getJson('/api/user/profile')->assertStatus(401);
     }
+
+    public function test_authenticated_user_can_update_profile_with_tags(): void
+    {
+        $user = User::factory()->create();
+
+        $user->profile()->create([
+            'job_title' => 'Developer Advocate',
+            'company_name' => 'API Hub',
+            'avatar_url' => 'https://example.com/old.png',
+            'location' => 'Remote',
+            'bio' => 'Helping devs connect.',
+            'phone_number' => '0001112222',
+            'is_first_timer' => false,
+            'tags' => ['community'],
+        ]);
+
+        $payload = [
+            'name' => 'Updated User',
+            'job_title' => 'Product Lead',
+            'company_name' => 'API Hub',
+            'avatar_url' => 'https://example.com/new.png',
+            'location' => 'NYC',
+            'bio' => 'Building connections.',
+            'phone_number' => '1234567890',
+            'is_first_timer' => true,
+            'tags' => ['product', 'networking'],
+        ];
+
+        $response = $this->actingAs($user, 'sanctum')->patchJson('/api/user/profile', $payload);
+
+        $response->assertOk()
+            ->assertJsonPath('user.name', 'Updated User')
+            ->assertJsonPath('user.profile.tags', ['product', 'networking']);
+
+        $this->assertDatabaseHas('user_profiles', [
+            'user_id' => $user->id,
+            'tags' => json_encode(['product', 'networking']),
+        ]);
+    }
 }

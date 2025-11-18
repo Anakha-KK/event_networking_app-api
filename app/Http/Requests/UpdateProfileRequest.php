@@ -22,6 +22,8 @@ class UpdateProfileRequest extends FormRequest
             'bio' => ['sometimes', 'nullable', 'string'],
             'phone_number' => ['sometimes', 'nullable', 'regex:/^\d{10}$/'],
             'is_first_timer' => ['sometimes', 'boolean'],
+            'tags' => ['sometimes', 'array'],
+            'tags.*' => ['string', 'max:50'],
         ];
     }
 }
