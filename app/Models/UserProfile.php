@@ -17,6 +17,7 @@ class UserProfile extends Model
         'job_title',
         'company_name',
         'avatar_url',
+        'linkedin_url',
         'location',
         'bio',
         'phone_number',

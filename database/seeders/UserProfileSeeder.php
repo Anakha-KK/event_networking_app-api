@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class UserProfileSeeder extends Seeder
 {
@@ -110,6 +111,7 @@ class UserProfileSeeder extends Seeder
                 'job_title' => $attendee['job_title'],
                 'company_name' => $attendee['company_name'],
                 'avatar_url' => null,
+                'linkedin_url' => sprintf('https://www.linkedin.com/in/%s', Str::slug($attendee['name'])),
                 'location' => $attendee['location'],
                 'bio' => sprintf('Meet %s, focused on %s.', $attendee['name'], implode(', ', $attendee['tags'])),
                 'phone_number' => sprintf('555000%04d', $index + 1),

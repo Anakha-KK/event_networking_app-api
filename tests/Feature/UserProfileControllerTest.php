@@ -18,6 +18,7 @@ class UserProfileControllerTest extends TestCase
             'job_title' => 'Software Engineer',
             'company_name' => 'Tech Corp',
             'avatar_url' => 'https://example.com/avatar.png',
+            'linkedin_url' => 'https://www.linkedin.com/in/test-user',
             'location' => 'Remote',
             'bio' => 'Building event networking tools.',
             'phone_number' => '1234567890',
@@ -44,6 +45,7 @@ class UserProfileControllerTest extends TestCase
             'job_title' => 'Developer Advocate',
             'company_name' => 'API Hub',
             'avatar_url' => 'https://example.com/old.png',
+            'linkedin_url' => 'https://www.linkedin.com/in/old-user',
             'location' => 'Remote',
             'bio' => 'Helping devs connect.',
             'phone_number' => '0001112222',
@@ -56,6 +58,7 @@ class UserProfileControllerTest extends TestCase
             'job_title' => 'Product Lead',
             'company_name' => 'API Hub',
             'avatar_url' => 'https://example.com/new.png',
+            'linkedin_url' => 'https://www.linkedin.com/in/new-user',
             'location' => 'NYC',
             'bio' => 'Building connections.',
             'phone_number' => '1234567890',
@@ -67,6 +70,7 @@ class UserProfileControllerTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('user.name', 'Updated User')
+            ->assertJsonPath('user.profile.linkedin_url', 'https://www.linkedin.com/in/new-user')
             ->assertJsonPath('user.profile.tags', ['product', 'networking']);
 
         $this->assertDatabaseHas('user_profiles', [

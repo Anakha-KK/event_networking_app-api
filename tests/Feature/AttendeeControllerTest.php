@@ -24,6 +24,7 @@ class AttendeeControllerTest extends TestCase
             'job_title' => 'Product Manager',
             'company_name' => 'Event Co',
             'avatar_url' => 'https://example.com/avatar.png',
+            'linkedin_url' => 'https://www.linkedin.com/in/emma-johnson',
             'location' => 'NYC',
             'bio' => 'Connector',
             'phone_number' => '1234567890',
@@ -36,6 +37,7 @@ class AttendeeControllerTest extends TestCase
         $response->assertOk()
             ->assertJsonPath('data.0.name', 'Emma Johnson')
             ->assertJsonPath('data.0.company_name', 'Event Co')
+            ->assertJsonPath('data.0.linkedin_url', 'https://www.linkedin.com/in/emma-johnson')
             ->assertJsonPath('data.0.tags', ['product', 'events']);
     }
 
@@ -48,6 +50,7 @@ class AttendeeControllerTest extends TestCase
             'job_title' => 'Designer',
             'company_name' => 'Design Hub',
             'avatar_url' => null,
+            'linkedin_url' => 'https://www.linkedin.com/in/first-timer',
             'location' => null,
             'bio' => null,
             'phone_number' => '1112223333',
@@ -60,6 +63,7 @@ class AttendeeControllerTest extends TestCase
             'job_title' => 'Engineer',
             'company_name' => 'Build Things',
             'avatar_url' => null,
+            'linkedin_url' => 'https://www.linkedin.com/in/regular-attendee',
             'location' => null,
             'bio' => null,
             'phone_number' => '9998887777',

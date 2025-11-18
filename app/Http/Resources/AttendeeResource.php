@@ -27,6 +27,7 @@ class AttendeeResource extends JsonResource
             'is_first_timer' => (bool) ($profile?->is_first_timer ?? false),
             'tags' => $profile?->tags ?? [],
             'avatar_url' => $profile?->avatar_url,
+            'linkedin_url' => $profile?->linkedin_url,
             'qr_payload' => [
                 'user_id' => $this->id,
                 'name' => $this->name,

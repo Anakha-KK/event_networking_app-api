@@ -18,6 +18,7 @@ class UpdateProfileRequest extends FormRequest
             'job_title' => ['sometimes', 'required', 'string', 'max:255'],
             'company_name' => ['sometimes', 'required', 'string', 'max:255'],
             'avatar_url' => ['sometimes', 'nullable', 'url', 'max:2048'],
+            'linkedin_url' => ['sometimes', 'nullable', 'url', 'max:2048'],
             'location' => ['sometimes', 'nullable', 'string', 'max:255'],
             'bio' => ['sometimes', 'nullable', 'string'],
             'phone_number' => ['sometimes', 'nullable', 'regex:/^\d{10}$/'],
