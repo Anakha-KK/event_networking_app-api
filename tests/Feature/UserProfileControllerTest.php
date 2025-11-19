@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -75,7 +76,12 @@ class UserProfileControllerTest extends TestCase
 
         $this->assertDatabaseHas('user_profiles', [
             'user_id' => $user->id,
-            'tags' => json_encode(['product', 'networking']),
         ]);
+
+        $storedTags = DB::table('user_profiles')
+            ->where('user_id', $user->id)
+            ->value('tags');
+
+        $this->assertSame(['product', 'networking'], json_decode($storedTags, true));
     }
 }
