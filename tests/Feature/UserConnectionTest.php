@@ -226,6 +226,63 @@ class UserConnectionTest extends TestCase
             ->assertJsonPath('message', 'Notes were already added for this connection.');
     }
 
+    public function test_user_can_list_all_their_connections(): void
+    {
+        $user = User::factory()->create();
+        $outboundAttendee = User::factory()->create();
+        $inboundAttendee = User::factory()->create();
+
+        $outboundAttendee->profile()->create([
+            'job_title' => 'Designer',
+            'company_name' => 'Studio',
+            'avatar_url' => null,
+            'linkedin_url' => null,
+            'location' => null,
+            'bio' => null,
+            'phone_number' => null,
+            'is_first_timer' => true,
+            'tags' => [],
+        ]);
+
+        $inboundAttendee->profile()->create([
+            'job_title' => 'Engineer',
+            'company_name' => 'Build Co',
+            'avatar_url' => null,
+            'linkedin_url' => null,
+            'location' => null,
+            'bio' => null,
+            'phone_number' => null,
+            'is_first_timer' => false,
+            'tags' => [],
+        ]);
+
+        $earlierConnection = UserConnection::factory()->create([
+            'user_id' => $user->id,
+            'attendee_id' => $outboundAttendee->id,
+            'connected_at' => now()->subDay(),
+            'total_points' => 75,
+            'notes' => 'Notes here',
+            'notes_added' => true,
+        ]);
+
+        $latestConnection = UserConnection::factory()->create([
+            'user_id' => $inboundAttendee->id,
+            'attendee_id' => $user->id,
+            'connected_at' => now(),
+        ]);
+
+        $response = $this->actingAs($user, 'sanctum')->getJson('/api/connections');
+
+        $response->assertOk()
+            ->assertJsonCount(2, 'connections')
+            ->assertJsonPath('connections.0.connection_id', $latestConnection->id)
+            ->assertJsonPath('connections.0.attendee_id', $inboundAttendee->id)
+            ->assertJsonPath('connections.0.attendee.id', $inboundAttendee->id)
+            ->assertJsonPath('connections.1.connection_id', $earlierConnection->id)
+            ->assertJsonPath('connections.1.attendee_id', $outboundAttendee->id)
+            ->assertJsonPath('connections.1.attendee.id', $outboundAttendee->id);
+    }
+
     private function pairToken(int $userId, int $attendeeId): string
     {
         $ids = [$userId, $attendeeId];

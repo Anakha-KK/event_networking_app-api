@@ -23,6 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/attendees', [AttendeeController::class, 'index']);
 
+    Route::get('/connections', [ConnectionController::class, 'index']);
     Route::post('/connections', [ConnectionController::class, 'store']);
     Route::patch('/connections/{connection}/notes', [ConnectionController::class, 'updateNotes']);
 });

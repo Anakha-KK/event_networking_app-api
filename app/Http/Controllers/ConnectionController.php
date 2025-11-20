@@ -5,16 +5,51 @@ namespace App\Http\Controllers;
 use App\Http\Requests\ConnectAttendeeRequest;
 use App\Http\Requests\UpdateConnectionNotesRequest;
 use App\Http\Resources\UserConnectionResource;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use App\Models\UserConnection;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class ConnectionController extends Controller
 {
     private const DAILY_LIMIT = 15;
     private const FIRST_TIMER_POINTS = 50;
     private const RETURNING_POINTS = 25;
+
+    public function index(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $connections = UserConnection::with(['user.profile', 'attendee.profile'])
+            ->where(function ($query) use ($user) {
+                $query->where('user_id', $user->id)
+                    ->orWhere('attendee_id', $user->id);
+            })
+            ->orderByDesc('connected_at')
+            ->get()
+            ->map(function (UserConnection $connection) use ($user) {
+                $other = $connection->user_id === $user->id
+                    ? $connection->attendee
+                    : $connection->user;
+
+                return [
+                    'connection_id' => $connection->id,
+                    'attendee_id' => $other?->id,
+                    'attendee' => $other ? new UserResource($other) : null,
+                    'connected_at' => $connection->connected_at?->toIso8601String(),
+                    'total_points' => $connection->total_points,
+                    'notes_added' => $connection->notes_added,
+                    'notes' => $connection->notes,
+                ];
+            })
+            ->values();
+
+        return response()->json([
+            'connections' => $connections,
+        ]);
+    }
 
     public function store(ConnectAttendeeRequest $request): JsonResponse
     {
