@@ -5,6 +5,7 @@ use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\SignupController;
 use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\ConnectionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,4 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/user/profile', [UserProfileController::class, 'update']);
 
     Route::get('/attendees', [AttendeeController::class, 'index']);
+
+    Route::post('/connections', [ConnectionController::class, 'store']);
+    Route::patch('/connections/{connection}/notes', [ConnectionController::class, 'updateNotes']);
 });

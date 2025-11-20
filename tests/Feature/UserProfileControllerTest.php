@@ -30,7 +30,8 @@ class UserProfileControllerTest extends TestCase
 
         $response->assertOk()
             ->assertJsonPath('user.email', $user->email)
-            ->assertJsonPath('user.profile.job_title', 'Software Engineer');
+            ->assertJsonPath('user.profile.job_title', 'Software Engineer')
+            ->assertJsonPath('user.qr_payload', $user->qrPayload());
     }
 
     public function test_guest_cannot_fetch_profile(): void

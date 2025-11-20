@@ -28,11 +28,7 @@ class AttendeeResource extends JsonResource
             'tags' => $profile?->tags ?? [],
             'avatar_url' => $profile?->avatar_url,
             'linkedin_url' => $profile?->linkedin_url,
-            'qr_payload' => [
-                'user_id' => $this->id,
-                'name' => $this->name,
-                'email' => $this->email,
-            ],
+            'qr_payload' => $this->qrPayload(),
         ];
     }
 }
