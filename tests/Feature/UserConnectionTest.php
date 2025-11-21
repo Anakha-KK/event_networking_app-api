@@ -32,7 +32,6 @@ class UserConnectionTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonPath('connection.base_points', 50)
             ->assertJsonPath('connection.total_points', 100)
             ->assertJsonPath('connection.notes_added', true)
             ->assertJsonPath('connection.user_notes_added', true)
@@ -66,7 +65,6 @@ class UserConnectionTest extends TestCase
         ]);
 
         $response->assertCreated()
-            ->assertJsonPath('connection.base_points', 25)
             ->assertJsonPath('connection.total_points', 25)
             ->assertJsonPath('connection.notes_added', false)
             ->assertJsonPath('connection.user_notes_added', false)
@@ -159,8 +157,7 @@ class UserConnectionTest extends TestCase
         $connection = UserConnection::factory()->create([
             'user_id' => $user->id,
             'attendee_id' => $attendee->id,
-            'base_points' => 25,
-            'total_points' => 25,
+            'is_first_timer' => false,
             'user_notes_added' => false,
             'user_notes' => null,
             'attendee_notes_added' => false,
@@ -181,7 +178,6 @@ class UserConnectionTest extends TestCase
             'id' => $connection->id,
             'user_notes_added' => true,
             'attendee_notes_added' => false,
-            'total_points' => 50,
         ]);
     }
 
@@ -193,8 +189,7 @@ class UserConnectionTest extends TestCase
         $connection = UserConnection::factory()->create([
             'user_id' => $user->id,
             'attendee_id' => $attendee->id,
-            'base_points' => 50,
-            'total_points' => 50,
+            'is_first_timer' => true,
             'user_notes_added' => false,
             'attendee_notes_added' => false,
         ]);
@@ -212,7 +207,6 @@ class UserConnectionTest extends TestCase
         $this->assertDatabaseHas('user_connections', [
             'id' => $connection->id,
             'attendee_notes_added' => true,
-            'total_points' => 100,
         ]);
     }
 
@@ -224,8 +218,7 @@ class UserConnectionTest extends TestCase
         $connection = UserConnection::factory()->create([
             'user_id' => $user->id,
             'attendee_id' => $attendee->id,
-            'base_points' => 25,
-            'total_points' => 25,
+            'is_first_timer' => false,
             'user_notes_added' => false,
             'attendee_notes_added' => false,
         ]);
@@ -246,7 +239,6 @@ class UserConnectionTest extends TestCase
 
         $this->assertDatabaseHas('user_connections', [
             'id' => $connection->id,
-            'total_points' => 75,
             'user_notes_added' => true,
             'attendee_notes_added' => true,
         ]);
@@ -359,7 +351,7 @@ class UserConnectionTest extends TestCase
             'user_id' => $user->id,
             'attendee_id' => $outboundAttendee->id,
             'connected_at' => now()->subDay(),
-            'total_points' => 75,
+            'is_first_timer' => true,
             'user_notes' => 'Notes here',
             'user_notes_added' => true,
         ]);

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Models\UserConnection;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -16,6 +17,9 @@ class UserConnectionResource extends JsonResource
         $viewerId = $request->user()?->id;
         $viewerIsUser = $viewerId !== null && $viewerId === $this->user_id;
         $viewerIsAttendee = $viewerId !== null && $viewerId === $this->attendee_id;
+        $basePoints = $this->is_first_timer
+            ? UserConnection::FIRST_TIMER_POINTS
+            : UserConnection::RETURNING_POINTS;
         $notesAdded = $viewerIsUser
             ? $this->user_notes_added
             : ($viewerIsAttendee ? $this->attendee_notes_added : false);
@@ -28,8 +32,8 @@ class UserConnectionResource extends JsonResource
             'user_id' => $this->user_id,
             'attendee_id' => $this->attendee_id,
             'is_first_timer' => $this->is_first_timer,
-            'base_points' => $this->base_points,
-            'total_points' => $this->total_points,
+            'base_points' => $basePoints,
+            'total_points' => $this->total_points ?? 0,
             'notes_added' => $notesAdded,
             'notes' => $notes,
             'user_notes_added' => $this->user_notes_added,

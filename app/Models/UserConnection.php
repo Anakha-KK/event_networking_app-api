@@ -5,18 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class UserConnection extends Model
 {
     use HasFactory;
+
+    public const FIRST_TIMER_POINTS = 50;
+    public const RETURNING_POINTS = 25;
 
     protected $fillable = [
         'user_id',
         'attendee_id',
         'pair_token',
         'is_first_timer',
-        'base_points',
-        'total_points',
         'user_notes_added',
         'user_notes',
         'attendee_notes_added',
@@ -45,5 +47,10 @@ class UserConnection extends Model
     public function attendee(): BelongsTo
     {
         return $this->belongsTo(User::class, 'attendee_id');
+    }
+
+    public function pointsLogs(): HasMany
+    {
+        return $this->hasMany(PointsLog::class);
     }
 }

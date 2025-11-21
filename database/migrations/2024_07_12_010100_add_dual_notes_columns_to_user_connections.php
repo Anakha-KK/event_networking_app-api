@@ -10,10 +10,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('user_connections', function (Blueprint $table) {
-            $table->boolean('user_notes_added')->default(false)->after('total_points');
-            $table->text('user_notes')->nullable()->after('user_notes_added');
-            $table->boolean('attendee_notes_added')->default(false)->after('user_notes');
-            $table->text('attendee_notes')->nullable()->after('attendee_notes_added');
+            $table->boolean('user_notes_added')->default(false);
+            $table->text('user_notes')->nullable();
+            $table->boolean('attendee_notes_added')->default(false);
+            $table->text('attendee_notes')->nullable();
         });
 
         DB::table('user_connections')->where('notes_added', true)->update([
@@ -29,8 +29,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('user_connections', function (Blueprint $table) {
-            $table->boolean('notes_added')->default(false)->after('total_points');
-            $table->text('notes')->nullable()->after('notes_added');
+            $table->boolean('notes_added')->default(false);
+            $table->text('notes')->nullable();
         });
 
         DB::table('user_connections')->update([

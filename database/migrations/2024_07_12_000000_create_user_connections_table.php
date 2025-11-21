@@ -14,8 +14,6 @@ return new class extends Migration
             $table->foreignId('attendee_id')->constrained('users')->cascadeOnDelete();
             $table->string('pair_token')->unique();
             $table->boolean('is_first_timer')->default(false);
-            $table->unsignedInteger('base_points');
-            $table->unsignedInteger('total_points');
             $table->boolean('notes_added')->default(false);
             $table->text('notes')->nullable();
             $table->timestamp('connected_at')->index();

@@ -16,20 +16,14 @@ class UserConnectionFactory extends Factory
     public function definition(): array
     {
         $isFirstTimer = (bool) $this->faker->boolean;
-        $basePoints = $isFirstTimer ? 50 : 25;
         $userNotesAdded = $this->faker->boolean;
         $attendeeNotesAdded = $this->faker->boolean;
-        $totalPoints = $basePoints
-            + ($userNotesAdded ? $basePoints : 0)
-            + ($attendeeNotesAdded ? $basePoints : 0);
 
         return [
             'user_id' => User::factory(),
             'attendee_id' => User::factory(),
             'pair_token' => null,
             'is_first_timer' => $isFirstTimer,
-            'base_points' => $basePoints,
-            'total_points' => $totalPoints,
             'user_notes_added' => $userNotesAdded,
             'user_notes' => $userNotesAdded ? $this->faker->sentence : null,
             'attendee_notes_added' => $attendeeNotesAdded,

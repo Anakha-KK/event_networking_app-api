@@ -6,6 +6,8 @@ use App\Http\Requests\ConnectAttendeeRequest;
 use App\Http\Requests\UpdateConnectionNotesRequest;
 use App\Http\Resources\UserConnectionResource;
 use App\Http\Resources\UserResource;
+use App\Models\PointsLog;
+use App\Models\PointsSource;
 use App\Models\User;
 use App\Models\UserConnection;
 use Carbon\Carbon;
@@ -15,8 +17,6 @@ use Illuminate\Http\Request;
 class ConnectionController extends Controller
 {
     private const DAILY_LIMIT = 15;
-    private const FIRST_TIMER_POINTS = 50;
-    private const RETURNING_POINTS = 25;
 
     public function index(Request $request): JsonResponse
     {
@@ -30,6 +30,7 @@ class ConnectionController extends Controller
             ->orderByDesc('connected_at')
             ->get()
             ->map(function (UserConnection $connection) use ($user) {
+                $connection = $this->attachComputedPoints($connection);
                 $viewerIsUser = $connection->user_id === $user->id;
                 $other = $viewerIsUser ? $connection->attendee : $connection->user;
                 $myNotes = $viewerIsUser ? $connection->user_notes : $connection->attendee_notes;
@@ -42,7 +43,7 @@ class ConnectionController extends Controller
                     'attendee_id' => $other?->id,
                     'attendee' => $other ? new UserResource($other) : null,
                     'connected_at' => $connection->connected_at?->toIso8601String(),
-                    'total_points' => $connection->total_points,
+                    'total_points' => $connection->total_points ?? 0,
                     'notes_added' => $myNotesAdded,
                     'notes' => $myNotes,
                     'other_notes_added' => $otherNotesAdded,
@@ -88,28 +89,30 @@ class ConnectionController extends Controller
         }
 
         $isFirstTimer = (bool) ($attendee->profile?->is_first_timer ?? false);
-        $basePoints = $isFirstTimer ? self::FIRST_TIMER_POINTS : self::RETURNING_POINTS;
+        $basePoints = $this->basePoints($isFirstTimer);
         $userNotes = $request->notes();
         $userNotesAdded = $userNotes !== null;
-        $totalPoints = $this->totalPointsWithNotes(
-            $basePoints,
-            $userNotesAdded,
-            false
-        );
 
         $connection = UserConnection::create([
             'user_id' => $user->id,
             'attendee_id' => $attendee->id,
             'pair_token' => $pairToken,
             'is_first_timer' => $isFirstTimer,
-            'base_points' => $basePoints,
-            'total_points' => $totalPoints,
             'user_notes_added' => $userNotesAdded,
             'user_notes' => $userNotes,
             'attendee_notes_added' => false,
             'attendee_notes' => null,
             'connected_at' => now(),
         ]);
+
+        $this->logPoints($connection, $user, $basePoints, PointsSource::CONNECTION, ['role' => 'initiator']);
+        $this->logPoints($connection, $attendee, $basePoints, PointsSource::CONNECTION, ['role' => 'attendee']);
+
+        if ($userNotesAdded) {
+            $this->logPoints($connection, $user, $basePoints, PointsSource::CONNECTION_NOTE);
+        }
+
+        $this->attachComputedPoints($connection);
 
         return response()->json([
             'message' => 'Connection recorded.',
@@ -143,12 +146,17 @@ class ConnectionController extends Controller
             $connection->attendee_notes_added = true;
         }
 
-        $connection->total_points = $this->totalPointsWithNotes(
-            $connection->base_points,
-            (bool) $connection->user_notes_added,
-            (bool) $connection->attendee_notes_added
-        );
         $connection->save();
+
+        $basePoints = $this->basePoints((bool) $connection->is_first_timer);
+        $this->logPoints(
+            $connection,
+            $user,
+            $basePoints,
+            PointsSource::CONNECTION_NOTE
+        );
+
+        $this->attachComputedPoints($connection);
 
         return response()->json([
             'message' => 'Notes saved and points updated.',
@@ -180,25 +188,52 @@ class ConnectionController extends Controller
         return hash_equals($attendee->qrSignature(), $signature);
     }
 
-    private function totalPointsWithNotes(int $basePoints, bool $userNotesAdded, bool $attendeeNotesAdded): int
-    {
-        $bonus = 0;
-
-        if ($userNotesAdded) {
-            $bonus += $basePoints;
-        }
-
-        if ($attendeeNotesAdded) {
-            $bonus += $basePoints;
-        }
-
-        return $basePoints + $bonus;
-    }
-
     private function errorResponse(string $message, int $status = 422): JsonResponse
     {
         return response()->json([
             'message' => $message,
         ], $status);
+    }
+
+    private function basePoints(bool $isFirstTimer): int
+    {
+        return $isFirstTimer
+            ? UserConnection::FIRST_TIMER_POINTS
+            : UserConnection::RETURNING_POINTS;
+    }
+
+    private function connectionPointsValue(UserConnection $connection): int
+    {
+        $base = $this->basePoints((bool) $connection->is_first_timer);
+        $bonus = 0;
+
+        if ($connection->user_notes_added) {
+            $bonus += $base;
+        }
+
+        if ($connection->attendee_notes_added) {
+            $bonus += $base;
+        }
+
+        return $base + $bonus;
+    }
+
+    private function attachComputedPoints(UserConnection $connection): UserConnection
+    {
+        $connection->setAttribute('total_points', $this->connectionPointsValue($connection));
+
+        return $connection;
+    }
+
+    private function logPoints(UserConnection $connection, User $user, int $points, PointsSource $source, array $metadata = []): void
+    {
+        PointsLog::create([
+            'user_id' => $user->id,
+            'user_connection_id' => $connection->id,
+            'source_type' => $source->value,
+            'points' => $points,
+            'metadata' => $metadata,
+            'awarded_at' => now(),
+        ]);
     }
 }
