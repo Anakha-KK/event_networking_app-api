@@ -27,7 +27,7 @@ class LeaderboardPointsSeeder extends Seeder
                 ? UserConnection::FIRST_TIMER_POINTS
                 : UserConnection::RETURNING_POINTS;
 
-            // Base points for both sides.
+            // Base points to initiator (scanner).
             PointsLog::create([
                 'user_id' => $connection->user_id,
                 'user_connection_id' => $connection->id,
@@ -37,16 +37,7 @@ class LeaderboardPointsSeeder extends Seeder
                 'awarded_at' => Carbon::now()->subDays(random_int(0, 60)),
             ]);
 
-            PointsLog::create([
-                'user_id' => $connection->attendee_id,
-                'user_connection_id' => $connection->id,
-                'source_type' => PointsSource::CONNECTION->value,
-                'points' => $base,
-                'metadata' => ['role' => 'attendee', 'seeded' => true],
-                'awarded_at' => Carbon::now()->subDays(random_int(0, 60)),
-            ]);
-
-            // Random note bonuses.
+            // Random note bonuses (flat 10).
             if ($this->faker->boolean(50)) {
                 $targetUserId = $this->faker->boolean(60) ? $connection->user_id : $connection->attendee_id;
 
@@ -54,7 +45,7 @@ class LeaderboardPointsSeeder extends Seeder
                     'user_id' => $targetUserId,
                     'user_connection_id' => $connection->id,
                     'source_type' => PointsSource::CONNECTION_NOTE->value,
-                    'points' => $base,
+                    'points' => 10,
                     'metadata' => [
                         'role' => $targetUserId === $connection->user_id ? 'initiator' : 'attendee',
                         'seeded' => true,
