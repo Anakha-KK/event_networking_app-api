@@ -23,5 +23,7 @@ class DatabaseSeeder extends Seeder
         $this->call(ConnectionDemoSeeder::class);
         // 4) Seed points for those connections to drive the leaderboard.
         $this->call(LeaderboardPointsSeeder::class);
+        // 5) Seed a demo 5-day agenda with 9am-5pm slots.
+        $this->call(AgendaDemoSeeder::class);
     }
 }

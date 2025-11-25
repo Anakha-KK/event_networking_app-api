@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AgendaController;
 use App\Http\Controllers\AttendeeController;
 use App\Http\Controllers\GoogleAuthController;
 use App\Http\Controllers\LoginController;
@@ -33,4 +34,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Points leaderboard (supports period/limit, returns viewer rank).
     Route::get('/leaderboard', [LeaderboardController::class, 'index']);
+
+    // Agenda: list and regenerate 5 or 7 day schedules with 9am-5pm slots.
+    Route::get('/agenda', [AgendaController::class, 'index']);
+    Route::post('/agenda/generate', [AgendaController::class, 'generate']);
 });
