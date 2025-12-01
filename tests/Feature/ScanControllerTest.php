@@ -6,6 +6,7 @@ use App\Models\AgendaDay;
 use App\Models\AgendaSlot;
 use App\Models\Challenge;
 use App\Models\User;
+use App\Services\QrTokenService;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
@@ -42,8 +43,12 @@ class ScanControllerTest extends TestCase
             'max_completions_per_user_per_day' => 1,
         ]);
 
+        config()->set('qr.signing_secret', 'testing-secret');
+        $qrTokens = new QrTokenService('testing-secret');
+
         $response = $this->actingAs($user, 'sanctum')->postJson('/api/scan/session', [
             'agenda_slot_id' => $slot->id,
+            'qr_token' => $qrTokens->mintToken($slot->id),
         ]);
 
         $response->assertCreated();
